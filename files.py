@@ -1,4 +1,3 @@
-
 from imports import *
 from directory import *
 from defs import *
@@ -14,7 +13,7 @@ def modify_grub_file(source_files_dir):
         if "set menu_color_normal" in grub_content[i]:
             grub_content[i] = grub_content[i].replace("white", "yellow")
         if "set menu_color_highlight" in grub_content[i]:
-            grub_content[i] = grub_content[i].replace("white", "yellow")
+            grub_content[i] = grub_content[i].replace("light-gray", "yellow")
 
     new_menuentry = """menuentry "DonCom Ubuntu Server" {
         set gfxpayload=keep
@@ -30,3 +29,20 @@ def modify_grub_file(source_files_dir):
         file.writelines(grub_content)
 
     print(f"{COLOR_GREEN}Archivo 'grub.cfg' modificado correctamente.{COLOR_RESET}")
+
+
+def copy_meta_to_user_data(server_dir):
+    meta_data_path = os.path.join(server_dir, "meta-data")
+    user_data_path = os.path.join(server_dir, "user-data")
+    
+    try:
+        with open(meta_data_path, 'r') as meta_file:
+            content = meta_file.read()
+        
+        with open(user_data_path, 'w') as user_file:
+            user_file.write(content)
+        
+        print(f"{COLOR_GREEN}Archivo 'meta-data' copiado a 'user-data' en '{user_data_path}'.{COLOR_RESET}")
+    except Exception as e:
+        print(f"{COLOR_RED}Error al copiar 'meta-data' a 'user-data': {e}{COLOR_RESET}")
+        sys.exit(1)
