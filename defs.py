@@ -31,8 +31,8 @@ def extract_iso(version_dir):
     print(f"{COLOR_GREEN}ISO extraído en '{source_files_dir}'.{COLOR_RESET}")
 
 
-def create_auto_install_file(server_dir):
-    config_content = """#cloud-config
+def create_auto_install_file(server_dir, gui_option):
+    config_content = f"""#cloud-config
 autoinstall:
   version: 1
   identity:
@@ -45,9 +45,9 @@ autoinstall:
   ssh:
     install-server: yes
   locale: es_ES.UTF-8
-  keyboard: {layout: es, variant: ''}
+  keyboard: {{layout: es, variant: ''}}
   packages:
-    - ubuntu-desktop
+    - {gui_option}
   user-data:
     packages:
     - dbus-x11
@@ -63,7 +63,7 @@ autoinstall:
 
     print(f"{COLOR_GREEN}Archivo de configuración 'user-data' creado automáticamente.{COLOR_RESET}")
 
-def create_personalized_install_file(server_dir):
+def create_personalized_install_file(server_dir, gui_option):
     hostname = input("Introduce el hostname: ")
     username = input("Introduce el nombre de usuario: ")
     password = input("Introduce la contraseña: ")
@@ -85,87 +85,14 @@ autoinstall:
   locale: es_ES.UTF-8
   keyboard: {{layout: es, variant: ''}}
   packages:
-    - ubuntu-desktop
+    - {gui_option}
 """
     with open(os.path.join(server_dir, "user-data"), 'w') as file:
         file.write(config_content)
 
     print(f"{COLOR_GREEN}Archivo de configuración 'user-data' personalizado creado.{COLOR_RESET}")
 
-"""def build_iso(version_dir, iso_name):
-    source_files_dir = os.path.join(version_dir, "source-files")
-    iso_output_path = os.path.join(version_dir, f"{iso_name}.iso")
-    os.chdir(source_files_dir)
-    subprocess.run([
-        "xorriso", "-as", "mkisofs", "-r",
-        "-V", "'Ubuntu 22.04 LTS AUTO (EFIBIOS)'",
-        "-o", iso_output_path,
-        "--grub2-mbr", "../BOOT/1-Boot-NoEmul.img",
-        "-partition_offset", "16",
-        "--mbr-force-bootable",
-        "-append_partition", "2", "28732ac11ff8d211ba4b00a0c93ec93b", "../BOOT/2-Boot-NoEmul.img",
-        "-appended_part_as_gpt",
-        "-iso_mbr_part_type", "a2a0d0ebe5b9334487c068b6b72699c7",
-        "-c", "/boot.catalog",
-        "-b", "/boot/grub/i386-pc/eltorito.img",
-        "-no-emul-boot", "-boot-load-size", "4", "-boot-info-table",
-        "--grub2-boot-info",
-        "-eltorito-alt-boot",
-        "-e", "--interval:appended_partition_2:::",
-        "-no-emul-boot", "."
-    ], check=True)
-    print(f"{COLOR_GREEN}ISO creada en '{iso_output_path}'.{COLOR_RESET}")"""
-
-
-
-"""def create_meta_data_file(server_dir):
-    # URL base para los archivos meta-data
-    base_url = "https://raw.githubusercontent.com/DonComProject/arenita/main/src/iso-conf/meta-data"
-
-    # Obtener la lista de versiones disponibles
-    meta_data_list_url = f"{base_url}/000"
-    try:
-        response = requests.get(meta_data_list_url)
-        response.raise_for_status()
-        versions = response.text.splitlines()
-    except requests.exceptions.RequestException:
-        print(f"{COLOR_RED}Error al obtener la lista de versiones disponibles.{COLOR_RESET}")
-        sys.exit(1)
-
-    # Mostrar las versiones disponibles
-    print("Versiones disponibles:")
-    for i, version in enumerate(versions, start=1):
-        print(f"{i}. {version}")
-
-    # Solicitar al usuario que seleccione una versión
-    selected_version_index = input("Selecciona el número de la versión de meta-data: ").strip()
-    try:
-        selected_version_index = int(selected_version_index)
-        if selected_version_index < 1 or selected_version_index > len(versions):
-            raise ValueError
-    except ValueError:
-        print(f"{COLOR_YELLOW}Número de versión no válido. Saliendo del programa.{COLOR_RESET}")
-        sys.exit(1)
-
-    selected_version = versions[selected_version_index - 1]
-
-    # Construir la URL completa para el archivo meta-data seleccionado
-    meta_data_url = f"{base_url}/{selected_version}"
-
-    # Ruta al archivo meta-data local
-    meta_data_path = os.path.join(server_dir, "meta-data")
-
-    # Descargar el archivo meta-data
-    print(f"{COLOR_YELLOW}Descargando 'meta-data' desde {meta_data_url}...{COLOR_RESET}")
-    try:
-        subprocess.run(["wget", "-O", meta_data_path, meta_data_url], check=True)
-        print(f"{COLOR_GREEN}Archivo 'meta-data' descargado y almacenado en '{meta_data_path}'.{COLOR_RESET}")
-    except subprocess.CalledProcessError:
-        print(f"{COLOR_RED}Error al descargar el archivo 'meta-data'.{COLOR_RESET}")
-        sys.exit(1)
-"""
-
-def create_meta_data_file(server_dir):
+def create_meta_data_file(server_dir, gui_option):
     # URL base para los archivos meta-data
     base_url = "https://raw.githubusercontent.com/DonComProject/arenita/main/src/iso-conf/meta-data"
 
@@ -226,11 +153,16 @@ def create_meta_data_file(server_dir):
     encrypted_password = subprocess.run(["openssl", "passwd", "-6", "davidtomas"], capture_output=True, text=True).stdout.strip()
     content = content.replace("{password}", encrypted_password)
 
+    # Reemplazar {gui} si se proporcionó la opción -g
+    if gui_option:
+        content = content.replace("{gui}", gui_option)
+
     # Guardar el archivo modificado
     with open(meta_data_path, 'w') as file:
         file.write(content)
 
     print(f"{COLOR_GREEN}Archivo 'meta-data' modificado y guardado en '{meta_data_path}'.{COLOR_RESET}")
+
 
 
 def build_iso(source_files_dir, iso_name):
