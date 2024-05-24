@@ -1,4 +1,3 @@
-
 from imports import *
 from directory import *
 from defs import *
@@ -39,4 +38,3 @@ def create_server_directory(source_files_dir):
     os.makedirs(server_dir)
     print(f"{COLOR_GREEN}Directorio 'server' creado en '{source_files_dir}'.{COLOR_RESET}")
     return server_dir
-
