@@ -1,3 +1,4 @@
+import argparse
 from imports import *
 from files import *
 from directory import *
@@ -12,10 +13,17 @@ def main():
     Returns:
         None
     """
-    print(f"{COLOR_YELLOW}Iniciando programa Yakuza...{COLOR_RESET}")
+    parser = argparse.ArgumentParser(description="Crear una ISO personalizada de Ubuntu.")
+    parser.add_argument("-g", "--gui", choices=[
+        "ubuntu-desktop",
+        "xubuntu-desktop",
+        "lubuntu-desktop",
+        "ubuntu-mate-desktop",
+        "cinnamon-desktop-environment",
+        "ubuntu-budgie-desktop"
+    ], default="ubuntu-desktop", help="Selecciona el entorno de escritorio para {gui}")
+    args = parser.parse_args()
 
-    # Rest of the code...
-def main():
     print(f"{COLOR_YELLOW}Iniciando programa Yakuza...{COLOR_RESET}")
 
     # Crear directorio principal yakuza
@@ -44,11 +52,13 @@ def main():
     # Crear directorio server
     server_dir = create_server_directory(source_files_dir)
 
-    #create_auto_install_file(server_dir)
-    create_meta_data_file(server_dir)
+    # Crear archivo de instalación automática con el entorno de escritorio seleccionado
+    create_auto_install_file(server_dir, args.gui)
+    create_meta_data_file(server_dir, args.gui)
+
     # Copiar user-data a meta-data
-    # create_meta_data_file(server_dir)
     copy_meta_to_user_data(server_dir)
+
     # Crear la ISO final
     iso_name = f"ubuntu-22.04-{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
     build_iso(source_files_dir, iso_name)
@@ -57,3 +67,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
