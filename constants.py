@@ -1,5 +1,3 @@
-# constants.py
-
 from imports import *
 from defs import *
 
