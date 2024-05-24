@@ -118,6 +118,53 @@ autoinstall:
 
 
 
+"""def create_meta_data_file(server_dir):
+    # URL base para los archivos meta-data
+    base_url = "https://raw.githubusercontent.com/DonComProject/arenita/main/src/iso-conf/meta-data"
+
+    # Obtener la lista de versiones disponibles
+    meta_data_list_url = f"{base_url}/000"
+    try:
+        response = requests.get(meta_data_list_url)
+        response.raise_for_status()
+        versions = response.text.splitlines()
+    except requests.exceptions.RequestException:
+        print(f"{COLOR_RED}Error al obtener la lista de versiones disponibles.{COLOR_RESET}")
+        sys.exit(1)
+
+    # Mostrar las versiones disponibles
+    print("Versiones disponibles:")
+    for i, version in enumerate(versions, start=1):
+        print(f"{i}. {version}")
+
+    # Solicitar al usuario que seleccione una versión
+    selected_version_index = input("Selecciona el número de la versión de meta-data: ").strip()
+    try:
+        selected_version_index = int(selected_version_index)
+        if selected_version_index < 1 or selected_version_index > len(versions):
+            raise ValueError
+    except ValueError:
+        print(f"{COLOR_YELLOW}Número de versión no válido. Saliendo del programa.{COLOR_RESET}")
+        sys.exit(1)
+
+    selected_version = versions[selected_version_index - 1]
+
+    # Construir la URL completa para el archivo meta-data seleccionado
+    meta_data_url = f"{base_url}/{selected_version}"
+
+    # Ruta al archivo meta-data local
+    meta_data_path = os.path.join(server_dir, "meta-data")
+
+    # Descargar el archivo meta-data
+    print(f"{COLOR_YELLOW}Descargando 'meta-data' desde {meta_data_url}...{COLOR_RESET}")
+    try:
+        subprocess.run(["wget", "-O", meta_data_path, meta_data_url], check=True)
+        print(f"{COLOR_GREEN}Archivo 'meta-data' descargado y almacenado en '{meta_data_path}'.{COLOR_RESET}")
+    except subprocess.CalledProcessError:
+        print(f"{COLOR_RED}Error al descargar el archivo 'meta-data'.{COLOR_RESET}")
+        sys.exit(1)
+"""
+
 def create_meta_data_file(server_dir):
     # URL base para los archivos meta-data
     base_url = "https://raw.githubusercontent.com/DonComProject/arenita/main/src/iso-conf/meta-data"
@@ -150,7 +197,7 @@ def create_meta_data_file(server_dir):
     selected_version = versions[selected_version_index - 1]
 
     # Construir la URL completa para el archivo meta-data seleccionado
-    meta_data_url = f"{base_url}/{selected_version}/meta-data"
+    meta_data_url = f"{base_url}/{selected_version}"
 
     # Ruta al archivo meta-data local
     meta_data_path = os.path.join(server_dir, "meta-data")
@@ -158,11 +205,33 @@ def create_meta_data_file(server_dir):
     # Descargar el archivo meta-data
     print(f"{COLOR_YELLOW}Descargando 'meta-data' desde {meta_data_url}...{COLOR_RESET}")
     try:
-        subprocess.run(["wget", "-O", meta_data_path, meta_data_url], check=True)
+        response = requests.get(meta_data_url)
+        response.raise_for_status()
+        with open(meta_data_path, 'w') as file:
+            file.write(response.text)
         print(f"{COLOR_GREEN}Archivo 'meta-data' descargado y almacenado en '{meta_data_path}'.{COLOR_RESET}")
-    except subprocess.CalledProcessError:
+    except requests.exceptions.RequestException:
         print(f"{COLOR_RED}Error al descargar el archivo 'meta-data'.{COLOR_RESET}")
         sys.exit(1)
+
+    # Leer el contenido del archivo meta-data
+    with open(meta_data_path, 'r') as file:
+        content = file.read()
+
+    # Reemplazar las variables
+    content = content.replace("{hostname}", "doncom")
+    content = content.replace("{username}", "admin")
+    
+    # Encriptar la contraseña 'davidtomas'
+    encrypted_password = subprocess.run(["openssl", "passwd", "-6", "davidtomas"], capture_output=True, text=True).stdout.strip()
+    content = content.replace("{password}", encrypted_password)
+
+    # Guardar el archivo modificado
+    with open(meta_data_path, 'w') as file:
+        file.write(content)
+
+    print(f"{COLOR_GREEN}Archivo 'meta-data' modificado y guardado en '{meta_data_path}'.{COLOR_RESET}")
+
 
 def build_iso(source_files_dir, iso_name):
     iso_output_path = os.path.join(os.path.dirname(source_files_dir), f"{iso_name}.iso")
