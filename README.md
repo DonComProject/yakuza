@@ -1,19 +1,23 @@
-# Yakuza Project
+# 🕵️‍♂️ Yakuza
 
-1. `yakuza.py`: This is the main file of the application. It contains the main logic of the program and is the entry point when you run the application.
+## Description
+Yakuza is a tool designed to automate the customization and creation of a customized Ubuntu ISO. It downloads the base Ubuntu ISO, extracts it, modifies configuration files, and creates a new ISO with the desired changes.
 
-2. `imports.py`: This file contains all the import statements used in the application. It's a way to centralize all the dependencies the application has.
+## Features
+- 📥 Downloads the base Ubuntu ISO if it's not already downloaded.
+- 📦 Extracts the ISO and performs modifications.
+- 🛠 Modifies configuration files like `grub.cfg` and creates `user-data` and `meta-data` files for cloud-init.
+- 🏗 Builds a new ISO with the customized configurations.
 
-3. `defs.py`: This file contains definitions of functions and classes used in the application. It's a way to organize the code by separating the definitions from the main logic.
+## Usage
+To use Yakuza, simply run the `yakuza.py` script. It will guide you through the process of customizing and creating your Ubuntu ISO.
 
-4. `constants.py`: This file contains constant values that are used throughout the application. By defining them in one place, you can easily change them if needed without having to search through the entire codebase.
+```bash
+python3 yakuza.py
+```
 
-5. `files.py`
-
-## How to run
-
-Executing yakuza.py file
+## Installation
+There's no installation required for Yakuza. Simply clone the repository and run the `yakuza.py` script.
 
 ## License
-
-MIT License
+Yakuza is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
