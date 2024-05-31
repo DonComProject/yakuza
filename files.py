@@ -15,7 +15,7 @@ def modify_grub_file(source_files_dir):
         if "set menu_color_highlight" in grub_content[i]:
             grub_content[i] = grub_content[i].replace("light-gray", "yellow")
 
-    new_menuentry = """menuentry "DonCom Ubuntu Server" {
+    new_menuentry = """menuentry "DonCom Ubuntu" {
         set gfxpayload=keep
         linux   /casper/vmlinuz quiet autoinstall ds=nocloud\\;s=/cdrom/server/ ---
         initrd  /casper/initrd
